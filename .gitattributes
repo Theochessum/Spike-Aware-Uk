@@ -3,3 +3,5 @@
 *.java linguist-language=Java
 *.gradle linguist-language=Groovy
 *.kts linguist-language=Kotlin
+*.sql linguist-language=SQL
+gradlew linguist-detectable=false
