@@ -1,0 +1,1 @@
+rootProject.name = "Spike-aware-uk-resource-awerens-project"
