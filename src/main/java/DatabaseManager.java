@@ -213,27 +213,30 @@ public class DatabaseManager {
      * Displays a list of all approved resources from the SQL Database and for given catorgory
      * Displays Message "No resources found!" if no resources are in the Database.
      */
-    public void getAllapprovedResources(String category) {
+    public ArrayList<Resource> getAllapprovedResources(String category) {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE status = 'approved' AND category = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, category);
             ResultSet results = statement.executeQuery();
-            boolean found = false;
+
             while (results.next()) {
-                found = true;
-                System.out.println(YELLOW+"Title: " + RESET+ results.getString("title"));
-                System.out.println(YELLOW+"URL: " + RESET+ results.getString("url"));
-                System.out.println(YELLOW+"ID: " + RESET + results.getInt("id"));
-                System.out.println(YELLOW+"Category: "+ RESET+ results.getString("category"));
-                System.out.println(YELLOW+"-------------------------------"+RESET);
-            }
-            if (!found) {
-                System.out.println(RED + BOLD + "No resources found!" + RESET);
-            }
+               Resource r;
+               if(category.equals("Awareness")){
+                   r = new AwarenessResources();
+               }else{
+                   r = new ResearchResource();
+               }
+               r.setTitle(results.getString("title"));
+                r.setUrl(results.getString("url"));
+                r.setCategory(results.getString("category"));
+                resources.add(r);
+               }
         } catch (SQLException error) {
             System.out.println(RED + BOLD + "Failed to display resources!: " + RESET + error.getMessage());
         }
+        return resources;
     }
     /**
      * Displays a list of all pending resources from the SQL Database and for given catorgory
