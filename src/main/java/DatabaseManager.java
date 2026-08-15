@@ -242,27 +242,34 @@ public class DatabaseManager {
      * Displays a list of all pending resources from the SQL Database and for given catorgory
      * Displays Message "No resources found!" if no resources are in the Database.
      */
-    public void getPendingResources() {
+    public ArrayList<Resource> getPendingResources() {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE status = 'pending'";
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet results = statement.executeQuery();
-            boolean found = false;
+
+
             while (results.next()) {
-                found = true;
-                System.out.println(YELLOW + "Title: " + RESET + results.getString("title"));
-                System.out.println(YELLOW + "URL: " + RESET+ results.getString("url"));
-                System.out.println(YELLOW + "ID: " + RESET+ results.getInt("id"));
-                System.out.println(YELLOW + "Category: " + RESET+ results.getString("category"));
-                System.out.println(YELLOW + "Status: " + RESET+ results.getString("status"));
-                System.out.println("-------------------------------");
+                Resource r;
+                if(results.getString("category").equals("Awareness")){
+                    r = new AwarenessResources();
+                }else{
+                    r = new ResearchResource();
+                }
+
+                r.setTitle(results.getString("title"));
+                r.setUrl(results.getString("url"));
+                r.setId(results.getInt("id"));
+                r.setCategory(results.getString("category"));
+                r.setStatus(results.getString("status"));
+                resources.add(r);
             }
-            if (!found) {
-                System.out.println(RED + BOLD + "No pending resources found!" + RESET);
-            }
+
         } catch (SQLException error) {
             System.out.println(RED + BOLD + "Failed to display resources!: " + RESET + error.getMessage());
         }
+        return resources;
     }
 
     /**
