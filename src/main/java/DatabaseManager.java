@@ -151,24 +151,34 @@ public class DatabaseManager {
      *
      * @param keyword - users entered word to show related resources
      */
-    public boolean searchResources(String keyword) {
+    public ArrayList<Resource> searchResources(String keyword) {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE title LIKE ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, "%" + keyword + "%");
 
+
             ResultSet search = statement.executeQuery();
-            boolean found = false;
+
             while (search.next()) {
-                found = true;
-                System.out.println(YELLOW+"Title: "+RESET + search.getString("title"));
-                System.out.println(YELLOW+"URL: "+RESET + search.getString("url"));
-                System.out.println(YELLOW+"Status: "+RESET + search.getString("status"));
+                Resource r;
+                if (search.getString("category").equals("Awareness")){
+                    r = new AwarenessResources();
+                }else{
+                    r = new ResearchResource();
+                }
+                r.setTitle(search.getString("title"));
+                r.setUrl(search.getString("url"));
+                r.setStatus(search.getString("status"));
+                r.setCategory(search.getString("category"));
+                r.setId(search.getInt("id"));
+                resources.add(r);
             }
-            return found;
         } catch (SQLException Error) {
             System.out.println(RED + BOLD + "search failed!: " + Error.getMessage());
-        }return false;
+        }
+        return resources;
     }
     /**
      * Gets resources from Data base table
