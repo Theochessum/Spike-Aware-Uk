@@ -310,24 +310,33 @@ public class DatabaseManager {
      *
      * @param title - title of resource to view
      */
-    public void getResourceByTitle (String title) {
+    public ArrayList<Resource> getResourceByTitle (String title) {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE title = ? AND status = 'approved'";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, title);
             ResultSet results = statement.executeQuery();
 
-            if (results.next()) {
-                System.out.println(YELLOW + "Title: " + RESET + results.getString("title"));
-                System.out.println(YELLOW + "URL: " + RESET + results.getString("url"));
-                System.out.println(YELLOW + "Category: " + RESET + results.getString("category"));
-                System.out.println(YELLOW + "Content: " + RESET + results.getString("content"));
-            } else {
-                System.out.println(RED + BOLD + "Resource not found!" + RESET);
+            while (results.next()) {
+                Resource r;
+                if(results.getString("category").equals("Awareness")){
+                    r = new AwarenessResources();
+                }else{
+                    r = new ResearchResource();
+                }
+
+                r.setTitle(results.getString("title"));
+                r.setUrl(results.getString("url"));
+                r.setCategory(results.getString("category"));
+                r.setContent(results.getString("content"));
+                resources.add(r);
             }
+
         } catch (SQLException Error) {
             System.out.println(RED + BOLD + "Failed: " + RESET + Error.getMessage());
         }
+        return resources;
     }
     /**
      * exports how many views each resource has to a cvs file
