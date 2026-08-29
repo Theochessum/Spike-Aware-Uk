@@ -474,6 +474,10 @@ public class DatabaseManager {
             System.out.println(RED+BOLD+ "Export failed! "+RESET+Error.getMessage());
         }
     }
+    public boolean resourceExists(String title) {
+        ArrayList<Resource> matches = searchResources(title);
+        return matches != null && !matches.isEmpty();
+    }
 }
 
 

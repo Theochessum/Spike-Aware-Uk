@@ -85,7 +85,7 @@ public class Admin {
                             break;
                         }
 
-                        boolean exists = db.searchResources(oldTitle);
+                        boolean exists = db.resourceExists(oldTitle);
                         if (!exists) {
                             System.out.println(RED + BOLD + "Resource not found!" + RESET);
                             Main.pressEnter(scanner);
