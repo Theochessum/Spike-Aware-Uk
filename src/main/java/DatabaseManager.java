@@ -151,24 +151,34 @@ public class DatabaseManager {
      *
      * @param keyword - users entered word to show related resources
      */
-    public boolean searchResources(String keyword) {
+    public ArrayList<Resource> searchResources(String keyword) {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE title LIKE ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, "%" + keyword + "%");
 
+
             ResultSet search = statement.executeQuery();
-            boolean found = false;
+
             while (search.next()) {
-                found = true;
-                System.out.println(YELLOW+"Title: "+RESET + search.getString("title"));
-                System.out.println(YELLOW+"URL: "+RESET + search.getString("url"));
-                System.out.println(YELLOW+"Status: "+RESET + search.getString("status"));
+                Resource r;
+                if (search.getString("category").equals("Awareness")){
+                    r = new AwarenessResources();
+                }else{
+                    r = new ResearchResource();
+                }
+                r.setTitle(search.getString("title"));
+                r.setUrl(search.getString("url"));
+                r.setStatus(search.getString("status"));
+                r.setCategory(search.getString("category"));
+                r.setId(search.getInt("id"));
+                resources.add(r);
             }
-            return found;
         } catch (SQLException Error) {
             System.out.println(RED + BOLD + "search failed!: " + Error.getMessage());
-        }return false;
+        }
+        return resources;
     }
     /**
      * Gets resources from Data base table
@@ -213,53 +223,63 @@ public class DatabaseManager {
      * Displays a list of all approved resources from the SQL Database and for given catorgory
      * Displays Message "No resources found!" if no resources are in the Database.
      */
-    public void getAllapprovedResources(String category) {
+    public ArrayList<Resource> getAllapprovedResources(String category) {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE status = 'approved' AND category = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, category);
             ResultSet results = statement.executeQuery();
-            boolean found = false;
+
             while (results.next()) {
-                found = true;
-                System.out.println(YELLOW+"Title: " + RESET+ results.getString("title"));
-                System.out.println(YELLOW+"URL: " + RESET+ results.getString("url"));
-                System.out.println(YELLOW+"ID: " + RESET + results.getInt("id"));
-                System.out.println(YELLOW+"Category: "+ RESET+ results.getString("category"));
-                System.out.println(YELLOW+"-------------------------------"+RESET);
-            }
-            if (!found) {
-                System.out.println(RED + BOLD + "No resources found!" + RESET);
-            }
+               Resource r;
+               if(category.equals("Awareness")){
+                   r = new AwarenessResources();
+               }else{
+                   r = new ResearchResource();
+               }
+               r.setTitle(results.getString("title"));
+                r.setUrl(results.getString("url"));
+                r.setCategory(results.getString("category"));
+                resources.add(r);
+               }
         } catch (SQLException error) {
             System.out.println(RED + BOLD + "Failed to display resources!: " + RESET + error.getMessage());
         }
+        return resources;
     }
     /**
      * Displays a list of all pending resources from the SQL Database and for given catorgory
      * Displays Message "No resources found!" if no resources are in the Database.
      */
-    public void getPendingResources() {
+    public ArrayList<Resource> getPendingResources() {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE status = 'pending'";
             PreparedStatement statement = connection.prepareStatement(sql);
             ResultSet results = statement.executeQuery();
-            boolean found = false;
+
+
             while (results.next()) {
-                found = true;
-                System.out.println(YELLOW + "Title: " + RESET + results.getString("title"));
-                System.out.println(YELLOW + "URL: " + RESET+ results.getString("url"));
-                System.out.println(YELLOW + "ID: " + RESET+ results.getInt("id"));
-                System.out.println(YELLOW + "Category: " + RESET+ results.getString("category"));
-                System.out.println(YELLOW + "Status: " + RESET+ results.getString("status"));
-                System.out.println("-------------------------------");
+                Resource r;
+                if(results.getString("category").equals("Awareness")){
+                    r = new AwarenessResources();
+                }else{
+                    r = new ResearchResource();
+                }
+
+                r.setTitle(results.getString("title"));
+                r.setUrl(results.getString("url"));
+                r.setId(results.getInt("id"));
+                r.setCategory(results.getString("category"));
+                r.setStatus(results.getString("status"));
+                resources.add(r);
             }
-            if (!found) {
-                System.out.println(RED + BOLD + "No pending resources found!" + RESET);
-            }
+
         } catch (SQLException error) {
             System.out.println(RED + BOLD + "Failed to display resources!: " + RESET + error.getMessage());
         }
+        return resources;
     }
 
     /**
@@ -290,24 +310,33 @@ public class DatabaseManager {
      *
      * @param title - title of resource to view
      */
-    public void getResourceByTitle (String title) {
+    public ArrayList<Resource> getResourceByTitle (String title) {
+        ArrayList<Resource> resources = new ArrayList<>();
         try {
             String sql = "SELECT * FROM resources WHERE title = ? AND status = 'approved'";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, title);
             ResultSet results = statement.executeQuery();
 
-            if (results.next()) {
-                System.out.println(YELLOW + "Title: " + RESET + results.getString("title"));
-                System.out.println(YELLOW + "URL: " + RESET + results.getString("url"));
-                System.out.println(YELLOW + "Category: " + RESET + results.getString("category"));
-                System.out.println(YELLOW + "Content: " + RESET + results.getString("content"));
-            } else {
-                System.out.println(RED + BOLD + "Resource not found!" + RESET);
+            while (results.next()) {
+                Resource r;
+                if(results.getString("category").equals("Awareness")){
+                    r = new AwarenessResources();
+                }else{
+                    r = new ResearchResource();
+                }
+
+                r.setTitle(results.getString("title"));
+                r.setUrl(results.getString("url"));
+                r.setCategory(results.getString("category"));
+                r.setContent(results.getString("content"));
+                resources.add(r);
             }
+
         } catch (SQLException Error) {
             System.out.println(RED + BOLD + "Failed: " + RESET + Error.getMessage());
         }
+        return resources;
     }
     /**
      * exports how many views each resource has to a cvs file
@@ -444,6 +473,10 @@ public class DatabaseManager {
         }catch (SQLException | IOException Error){
             System.out.println(RED+BOLD+ "Export failed! "+RESET+Error.getMessage());
         }
+    }
+    public boolean resourceExists(String title) {
+        ArrayList<Resource> matches = searchResources(title);
+        return matches != null && !matches.isEmpty();
     }
 }
 
