@@ -7,7 +7,7 @@
 
 \f0\fs24 \cf0 Spike Aware UK - Resource management system\
 \
-SID - 2503921\
+
 \
 ##DESCRIPTION\
 Console-based resource management system built for Spike Aware UK.\
